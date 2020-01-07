@@ -11,3 +11,5 @@ gmall-manager-service:8072
 在server.xml中最后一行加上了开启时并加载dubbo
 
 在项目中使用了dubbo 加 zookeeper  调用远程服务(完成)
+
+后台管理员基本完成
