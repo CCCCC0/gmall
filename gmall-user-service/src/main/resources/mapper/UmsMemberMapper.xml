@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atguigu.gmall.user.mapper.UmsMemberMapper">
+
+    <select id="selectAllUmsMembers" resultType="com.atguigu.gmall.pojo.UmsMember">
+     select id,member_level_id,username, password,nickname,phone,status,
+            create_time,icon,gender,birthday,city,job,personalized_signature,
+            source_uid,source_type,integration,growth,luckey_count,access_token,
+            access_code,history_integration from ums_member;
+    </select>
+
+    <select id="selectUmsMemberById" resultType="com.atguigu.gmall.pojo.UmsMember">
+
+        select id,member_level_id,username, password,nickname,phone,status,
+            create_time,icon,gender,birthday,city,job,personalized_signature,
+            source_uid,source_type,integration,growth,luckey_count,access_token,
+            access_code,history_integration from ums_member where id = #{umsMemberId};
+
+    </select>
+
+    <delete id="deleteUmsMemberById">
+        delete from ums_member where id = #{umsMemberId};
+    </delete>
+
+    <insert id="insertUmsMember">
+        insert into ums_member values(id,member_level_id,username, password,nickname,phone,status,
+            create_time,icon,gender,birthday,city,job,personalized_signature,
+            source_uid,source_type,integration,growth,luckey_count,access_token,
+            access_code,history_integration);
+
+    </insert>
+
+</mapper>

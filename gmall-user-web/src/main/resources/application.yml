@@ -1,0 +1,16 @@
+server:
+  port: 1000
+
+spring:
+  dubbo:
+    registry:
+      address: 192.168.126.128:2181
+      protocol: zookeeper
+    application:
+      name: user-web
+    protocol:
+      name: dubbo
+    consumer:
+      timeout: 60000
+      check: false   #是启动消费端时 是否检测服务端能否正常访问  如果为true时  如果服务端不能正常提供 则找不到service
+    base-package: com.atguigu.gmall
