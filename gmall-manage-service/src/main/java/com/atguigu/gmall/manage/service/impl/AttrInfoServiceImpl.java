@@ -5,6 +5,7 @@ import com.atguigu.gmall.manage.mapper.AttrInfoMapper;
 import com.atguigu.gmall.manage.mapper.AttrInfoValueMapper;
 import com.atguigu.gmall.pojo.PmsBaseAttrInfo;
 import com.atguigu.gmall.pojo.PmsBaseAttrValue;
+import com.atguigu.gmall.pojo.PmsProductSaleAttr;
 import com.atguigu.gmall.service.AttrInfoService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;

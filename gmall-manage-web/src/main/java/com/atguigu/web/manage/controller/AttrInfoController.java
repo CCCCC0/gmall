@@ -2,7 +2,9 @@ package com.atguigu.web.manage.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.atguigu.gmall.pojo.PmsBaseAttrInfo;
+import com.atguigu.gmall.pojo.PmsProductSaleAttr;
 import com.atguigu.gmall.service.AttrInfoService;
+import com.sun.org.apache.bcel.internal.generic.RETURN;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,5 +37,6 @@ public class AttrInfoController {
 
         return "success";
     }
+
 
 }

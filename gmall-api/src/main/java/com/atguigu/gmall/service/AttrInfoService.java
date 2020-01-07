@@ -1,6 +1,7 @@
 package com.atguigu.gmall.service;
 
 import com.atguigu.gmall.pojo.PmsBaseAttrInfo;
+import com.atguigu.gmall.pojo.PmsProductSaleAttr;
 
 import java.util.List;
 

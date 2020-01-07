@@ -31,6 +31,19 @@ public class PmsProductInfo implements Serializable {
     @Transient
     private List<PmsProductImage> spuImageList;
 
+    @Transient
+    private String spuName;
+
+    public void setSpuName(String spuName){
+        this.spuName = spuName;
+        if(productName == null || "".equals(productName)){
+            this.productName = this.spuName;
+        }
+    }
+
+    public String getSpuName(){
+        return spuName;
+    }
 
     public String getProductName() {
         return productName;
@@ -38,6 +51,9 @@ public class PmsProductInfo implements Serializable {
 
     public void setProductName(String productName) {
         this.productName = productName;
+        if(spuName == null || "".equals(spuName)){
+            this.spuName = this.productName;
+        }
     }
 
     public List<PmsProductSaleAttr> getSpuSaleAttrList() {
@@ -63,7 +79,6 @@ public class PmsProductInfo implements Serializable {
     public void setId(String id) {
         this.id = id;
     }
-
 
     public String getDescription() {
         return description;
