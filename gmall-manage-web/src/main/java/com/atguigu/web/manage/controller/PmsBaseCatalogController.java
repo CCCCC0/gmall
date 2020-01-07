@@ -1,6 +1,7 @@
 package com.atguigu.web.manage.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
+
 import com.atguigu.gmall.pojo.PmsBaseCatalog1;
 import com.atguigu.gmall.pojo.PmsBaseCatalog2;
 import com.atguigu.gmall.pojo.PmsBaseCatalog3;
@@ -45,4 +46,5 @@ public class PmsBaseCatalogController {
 
         return allPmsBaseCatalog3List;
     }
+
 }
