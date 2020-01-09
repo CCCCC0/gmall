@@ -4,11 +4,14 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.atguigu.gmall.pojo.PmsBaseSaleAttr;
 import com.atguigu.gmall.pojo.PmsProductInfo;
 import com.atguigu.gmall.service.SpuService;
+import org.csource.fastdfs.ClientGlobal;
+import org.csource.fastdfs.StorageClient;
+import org.csource.fastdfs.TrackerClient;
+import org.csource.fastdfs.TrackerServer;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import com.atguigu.gmall.util.*;
 
 import java.util.List;
 
@@ -45,4 +48,34 @@ public class SpuController {
 
         return "success";
     }
+
+    @ResponseBody
+    @RequestMapping("fileUpload")
+    public String fileUpload(@RequestParam("file") MultipartFile multipartFile){
+
+        try {
+            String file = this.getClass().getResource("/tracker.conf").getFile();
+            ClientGlobal.init(file);
+            TrackerClient trackerClient = new TrackerClient();
+            TrackerServer trackerServer = trackerClient.getTrackerServer();
+
+            StorageClient storageClient = new StorageClient(trackerServer);
+            String orginalFilename = multipartFile.getOriginalFilename();
+
+            int lastIndex = orginalFilename.lastIndexOf(".");
+            String file_ext_name = orginalFilename.substring(lastIndex + 1);
+            String[] jpgs = storageClient.upload_file(multipartFile.getBytes(), file_ext_name, null);
+
+            String imageUrl = WebConstant.LINUX_ADDRESS_PREFIX;
+            for (String jpg : jpgs) {
+                imageUrl = imageUrl + "/" + jpg;
+            }
+
+            return imageUrl;
+        }catch(Exception e){
+            e.printStackTrace();
+            return "FAILED";
+        }
+    }
+
 }
