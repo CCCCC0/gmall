@@ -29,6 +29,14 @@ public class AttrInfoServiceImpl implements AttrInfoService {
         pmsBaseAttrInfo.setCatalog3Id(catalog3Id);
         List<PmsBaseAttrInfo> pmsBaseAttrInfoList = attrInfoMapper.select(pmsBaseAttrInfo);
 
+        //需要把attrInfoValue的值 注入
+        for (PmsBaseAttrInfo baseAttrInfo : pmsBaseAttrInfoList) {
+            PmsBaseAttrValue pmsBaseAttrValue = new PmsBaseAttrValue();
+            pmsBaseAttrValue.setAttrId(baseAttrInfo.getId());
+             List<PmsBaseAttrValue> pmsBaseAttrValueList = attrInfoValueMapper.select(pmsBaseAttrValue);
+             baseAttrInfo.setAttrValueList(pmsBaseAttrValueList);
+        }
+
         return pmsBaseAttrInfoList;
     }
 

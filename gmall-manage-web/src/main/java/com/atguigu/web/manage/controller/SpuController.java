@@ -2,7 +2,9 @@ package com.atguigu.web.manage.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.atguigu.gmall.pojo.PmsBaseSaleAttr;
+import com.atguigu.gmall.pojo.PmsProductImage;
 import com.atguigu.gmall.pojo.PmsProductInfo;
+import com.atguigu.gmall.pojo.PmsProductSaleAttr;
 import com.atguigu.gmall.service.SpuService;
 import org.csource.fastdfs.ClientGlobal;
 import org.csource.fastdfs.StorageClient;
@@ -76,6 +78,24 @@ public class SpuController {
             e.printStackTrace();
             return "FAILED";
         }
+    }
+
+    @RequestMapping("spuSaleAttrList")
+    @ResponseBody
+    public List<PmsProductSaleAttr> spuSaleAttrList(String spuId){
+
+        List<PmsProductSaleAttr> allPmsProductSaleAttrList = spuService.getAllPmsProductSaleAttr(spuId);
+
+        return allPmsProductSaleAttrList;
+    }
+
+    @RequestMapping("spuImageList")
+    @ResponseBody
+    public List<PmsProductImage> spuImageList(String spuId){
+
+        List<PmsProductImage> pmsProductImageList = spuService.getAllPmsProductImage(spuId);
+
+        return pmsProductImageList;
     }
 
 }
