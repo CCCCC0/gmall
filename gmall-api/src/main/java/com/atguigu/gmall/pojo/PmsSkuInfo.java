@@ -40,12 +40,16 @@ public class PmsSkuInfo implements Serializable {
     @Transient
     List<PmsSkuSaleAttrValue> skuSaleAttrValueList;
 
+
     public String getSpuId() {
         return spuId;
     }
 
     public void setSpuId(String spuId) {
         this.spuId = spuId;
+        if(productId == null || "".equals(productId)){
+            this.productId = spuId;
+        }
     }
 
     public String getId() {
@@ -110,6 +114,9 @@ public class PmsSkuInfo implements Serializable {
 
     public void setProductId(String productId) {
         this.productId = productId;
+        if(spuId == null || "".equals(spuId)){
+            this.spuId = productId;
+        }
     }
 
     public List<PmsSkuImage> getSkuImageList() {

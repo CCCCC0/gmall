@@ -69,7 +69,7 @@ public class SpuServiceImpl implements SpuService {
 
             //进行值的插入
             //需要插入联合主键 productId + saleAttrId
-            String saleAttrId = pmsProductSaleAttr.getId();
+            String saleAttrId = pmsProductSaleAttr.getSaleAttrId();
 
             //销售属性值的插入
             List<PmsProductSaleAttrValue> saleAttrSpuSaleAttrValueList = pmsProductSaleAttr.getSpuSaleAttrValueList();
