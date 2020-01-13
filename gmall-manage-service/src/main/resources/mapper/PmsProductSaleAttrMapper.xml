@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atguigu.gmall.manage.mapper.PmsProductSaleAttrMapper">
+    <select id="getIsChekedSpuAttrList"  resultMap="getIsChekedSpuAttrList_Map">
+            SELECT psa.id as psa_id,psav.id as psav_id,psa.*,psav.*,IF(kpsav.`sku_id`,1,0) AS 'isChecked'    #前两张表相连 - 把相关的查出 空字段的不要 用 inner join
+            FROM
+            `pms_product_sale_attr` AS psa
+            INNER JOIN `pms_product_sale_attr_value` psav
+            ON
+            psa.`product_id`=psav.`product_id` AND psa.`sale_attr_id`=psav.`sale_attr_id`   #后两张表查出全部销售属性  空字段的也需要
+	         AND psa.`product_id`=#{spuId}
+            LEFT JOIN
+            `pms_sku_sale_attr_value` AS kpsav
+            ON
+            kpsav.`sale_attr_id` = psa.`sale_attr_id`
+            AND
+             kpsav.`sale_attr_value_id` = psav.`id`
+            AND
+            kpsav.`sku_id`=#{skuId}
+    </select>
+
+    <resultMap id="getIsChekedSpuAttrList_Map" type="com.atguigu.gmall.pojo.PmsProductSaleAttr" autoMapping="true">
+        <result column="psa_id" property="id"/>   <!-- 方便注入主键 -->
+        <collection autoMapping="true" property="spuSaleAttrValueList" ofType="com.atguigu.gmall.pojo.PmsProductSaleAttrValue">
+        <result column="psav_id" property="id"/>
+        </collection>
+    </resultMap>
+
+</mapper>

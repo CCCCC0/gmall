@@ -109,4 +109,12 @@ public class SpuServiceImpl implements SpuService {
         return pmsProductSaleAttrList;
     }
 
+    @Override
+    public List<PmsProductSaleAttr> getIsChekedSpuAttrList(String skuId, String spuId) {
+
+        List<PmsProductSaleAttr> pmsProductSaleAttrList = pmsProductSaleAttrMapper.getIsChekedSpuAttrList(skuId, spuId);
+
+        return pmsProductSaleAttrList;
+    }
+
 }

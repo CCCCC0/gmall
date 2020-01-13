@@ -8,4 +8,8 @@ public interface SkuService {
 
     void savePmsSkuInfo(PmsSkuInfo pmsSkuInfo);
 
+    PmsSkuInfo getSkuInfoById(String skuId);
+
+    List<PmsSkuInfo> getPmsSkuInfoListBySpuId(String spuId);
+
 }

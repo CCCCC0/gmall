@@ -63,6 +63,10 @@
             <artifactId>spring-boot-starter-dubbo</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+        </dependency>
     </dependencies>
 
 </project>
