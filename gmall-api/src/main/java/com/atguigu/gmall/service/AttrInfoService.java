@@ -1,9 +1,10 @@
 package com.atguigu.gmall.service;
 
 import com.atguigu.gmall.pojo.PmsBaseAttrInfo;
-import com.atguigu.gmall.pojo.PmsProductSaleAttr;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public interface AttrInfoService {
 
@@ -11,4 +12,5 @@ public interface AttrInfoService {
 
     void saveAttrInfo(PmsBaseAttrInfo pmsBaseAttrInfo);
 
+    List<PmsBaseAttrInfo> getBaseAttrListByValueIds(HashSet valueIds);
 }

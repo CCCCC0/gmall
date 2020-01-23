@@ -11,7 +11,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import tk.mybatis.mapper.entity.Example;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class AttrInfoServiceImpl implements AttrInfoService {
@@ -68,6 +70,17 @@ public class AttrInfoServiceImpl implements AttrInfoService {
              pmsBaseAttrValue.setAttrId(id);
              attrInfoValueMapper.insertSelective(pmsBaseAttrValue);
         }
+    }
+
+    @Override
+    public List<PmsBaseAttrInfo> getBaseAttrListByValueIds(HashSet valueIds) {
+
+        //将集合中的内容用逗号拼接在一起
+        String valueids = StringUtils.join(valueIds, ",");
+
+        List<PmsBaseAttrInfo> pmsBaseAttrInfos = attrInfoMapper.selectAttrInfoListByvalueIds(valueids);
+
+        return pmsBaseAttrInfos;
     }
 
 
