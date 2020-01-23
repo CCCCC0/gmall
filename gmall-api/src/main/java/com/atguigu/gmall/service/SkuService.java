@@ -12,4 +12,8 @@ public interface SkuService {
 
     List<PmsSkuInfo> getPmsSkuInfoListBySpuId(String spuId);
 
+    //对于分布式锁的测试
+    public PmsSkuInfo getSkuInfoByIdCopy1(String skuId);
+
+    List<PmsSkuInfo> getAllPmsSkuInfo();
 }

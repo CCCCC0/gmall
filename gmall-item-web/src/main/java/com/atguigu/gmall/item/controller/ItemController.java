@@ -12,7 +12,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.io.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,10 +64,77 @@ public class ItemController {
         return "item";
     }
 
+    //生成文件
+//    @RequestMapping("ccc.html")
+//    @ResponseBody
+//    public String item2(String spuId){
+//        //第三种解决方案
+//        //将spu下对应的 sku全部生成 创建到一个Map中 作为静态资源放在工程下
+//        //当前端每次点击时  通过前端页面中的销售属性组合Id找到skuId  得到结果
+//
+//        List<PmsSkuInfo> pmsSkuInfos = skuService.getPmsSkuInfoListBySpuId(spuId);
+//
+//        Map<String,String> skuIdMap = new HashMap();
+//
+//        for (PmsSkuInfo pmsSkuInfo : pmsSkuInfos) {
+//            List<PmsSkuSaleAttrValue> skuSaleAttrValueList = pmsSkuInfo.getSkuSaleAttrValueList();
+//            String k = "";
+//            for (PmsSkuSaleAttrValue skuSaleAttrValue : skuSaleAttrValueList) {
+//                k = k + skuSaleAttrValue.getSaleAttrValueId() + "|";
+//            }
+//            String v = pmsSkuInfo.getId();
+//            skuIdMap.put(k,v);
+//        }
+//
+//        String skuIdMapJson = JSON.toJSONString(skuIdMap);
+//
+//        //将skuIdMapJson写入一个json文件中
+//
+//        File file = new File("D:/电商文件/static_json/"+ "spuId_" + spuId+".js");
+//
+//        try {
+//            OutputStream out = new FileOutputStream(file);
+//            out.write(skuIdMapJson.getBytes());
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//        return skuIdMapJson;
+//    }
+
+    //第三种方案访问的路径
+    @RequestMapping("{skuId}.htm")
+    public String item3(@PathVariable String skuId, ModelMap modelMap) {
+
+        PmsSkuInfo pmsSkuInfo = skuService.getSkuInfoById(skuId);
+        modelMap.put("skuInfo", pmsSkuInfo);
+
+        String spuId = pmsSkuInfo.getProductId();
+
+        List<PmsProductSaleAttr> pmsProductSaleAttrList = spuService.getIsChekedSpuAttrList(skuId, spuId);
+        modelMap.put("spuSaleAttrListCheckBySku", pmsProductSaleAttrList);
+
+        //将spuId存入
+        modelMap.put("spuId",spuId);
+
+        return "item";
+    }
+
     /*
     解决方案1：
     通过页面点击销售属性值，异步传递到后台，根据销售属性值查询对应的skuId
     将对应的skuId返回给前台，前台判断是否需要跳转(skuId有值时跳转，skuId无值时不跳转)
      */
+
+    @ResponseBody
+    @RequestMapping("zzz.html")
+    public PmsSkuInfo zzz(String skuId){
+
+        PmsSkuInfo pmsSkuInfo = skuService.getSkuInfoByIdCopy1(skuId);
+
+        return pmsSkuInfo;
+    }
 
 }
