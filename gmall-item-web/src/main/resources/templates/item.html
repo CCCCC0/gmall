@@ -262,8 +262,8 @@
 
 						<div class="box-btns clear">
 							<div class="box-btns-one">
-								<form id="itemForm" action="http://cart.gmall.com:8087/addToCart" method="post">
-									<input type="text" name="num" id=""  value="1"/>
+								<form id="itemForm" action="http://cart.gmall.com:8085/addToCart" method="post">
+									<input type="text" name="quantity" id=""  value="1"/>
 									<input type="hidden" name="skuId"  th:value="${skuInfo?.id}" />
                                     <input type="hidden" th:value="${spuId}" id="spuId">
 
@@ -1031,29 +1031,29 @@
                 key = key + valueId +  "|";
             });
 
-            //第二种解决方案 ：获取页面隐藏的sku属性与id的集合
-            // var skuIdMap = $("#skuInfoMap").val();
-            // var skuIdMapJson = JSON.parse(skuIdMap);
-            //
-            // var skuId = skuIdMapJson[key];   //map对象获取键方式
-            //
-            // if(skuId){                       //存在跳转
-            //     window.location.href = skuId + ".html";
-            // }
+           // 第二种解决方案 ：获取页面隐藏的sku属性与id的集合
+            var skuIdMap = $("#skuInfoMap").val();
+            var skuIdMapJson = JSON.parse(skuIdMap);
+
+            var skuId = skuIdMapJson[key];   //map对象获取键方式
+
+            if(skuId){                       //存在跳转
+                window.location.href = skuId + ".html";
+            }
 
             //第三中解决方案 -- 导入静态文件
             //获取当前 spuId 的 静态文件
-            var spuId = $("#spuId").val();
-            $.getJSON("/js/spuId_"+spuId+".js",function (json) {
-                if(json){
-                    var skuId = json[key];
-                    if(skuId){
-                        window.location.href = skuId+".htm";
-                    }
-                }else{
-                    // 调用后台生成静态文件的方法，返回json进行对比
-                }
-            });
+            // var spuId = $("#spuId").val();
+            // $.getJSON("/js/spuId_"+spuId+".js",function (json) {
+            //     if(json){
+            //         var skuId = json[key];
+            //         if(skuId){
+            //             window.location.href = skuId+".htm";
+            //         }
+            //     }else{
+            //         // 调用后台生成静态文件的方法，返回json进行对比
+            //     }
+            // });
 
 
 

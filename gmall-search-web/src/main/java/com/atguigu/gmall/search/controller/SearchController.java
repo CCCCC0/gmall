@@ -134,7 +134,7 @@ public class SearchController {
         return urlParam;
     }
 
-    //创造面包屑
+    //创造面包屑Url
     public String getPmsSearchCrumbUrlParam(PmsSearchParam pmsSearchParam,String...deleteValueIds){
 
         List<PmsSearchCrumb> pmsSearchCrumbList = new ArrayList<>();
