@@ -1,13 +1,13 @@
-package com.atguigu.gmall.cart;
+package com.atguigu.gmall.order;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class GmallCartServiceApplication {
+public class GmallOrderServiceApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(GmallCartServiceApplication.class, args);
+        SpringApplication.run(GmallOrderServiceApplication.class, args);
     }
 
 }

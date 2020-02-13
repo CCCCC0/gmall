@@ -12,7 +12,14 @@ public interface UmsMemberService {
 
     void deleteUmsMemberById(String umsMemberId);
 
-    void insertUmsMember(UmsMember umsMember);
+    UmsMember insertUmsMember(UmsMember umsMember);
 
+    UmsMember getUmsMemberByUserIdAndLoginAccout(String password,String logAccout);
+
+    void sychronizedTokenToRedis(String token,UmsMember umsMember);
+
+    UmsMember vefiryToken(String token);
+
+    UmsMember getUmsMemberByUidAndNickName(String uid,String nickName);
 
 }

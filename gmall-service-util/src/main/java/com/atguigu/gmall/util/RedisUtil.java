@@ -6,9 +6,9 @@ import redis.clients.jedis.JedisPoolConfig;
 
 public class RedisUtil {
 
-    private JedisPool jedisPool;
+    private static JedisPool jedisPool;
 
-    public void initPool(String host,int port ,int database){
+    public static void initPool(String host,int port ,int database){
         JedisPoolConfig poolConfig = new JedisPoolConfig();
         poolConfig.setMaxTotal(200);
         poolConfig.setMaxIdle(30);
@@ -18,7 +18,7 @@ public class RedisUtil {
         jedisPool=new JedisPool(poolConfig,host,port,20*1000);
     }
 
-    public Jedis getJedis(){
+    public static Jedis getJedis(){
         Jedis jedis = jedisPool.getResource();
         return jedis;
     }

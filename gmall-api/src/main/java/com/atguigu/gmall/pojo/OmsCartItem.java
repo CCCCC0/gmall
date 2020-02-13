@@ -219,4 +219,8 @@ public class OmsCartItem implements Serializable{
     public void setProductAttr(String productAttr) {
         this.productAttr = productAttr;
     }
+
+    public String toString(){
+        return this.getProductName();
+    }
 }

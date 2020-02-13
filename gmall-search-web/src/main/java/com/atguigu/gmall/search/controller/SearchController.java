@@ -1,6 +1,7 @@
 package com.atguigu.gmall.search.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
+import com.atguigu.gmall.annotations.LoginIsRequiredIntercept;
 import com.atguigu.gmall.pojo.*;
 import com.atguigu.gmall.service.AttrInfoService;
 import com.atguigu.gmall.service.PmsSearchService;
@@ -8,7 +9,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -23,11 +23,15 @@ public class SearchController {
     @Reference
     private AttrInfoService attrInfoService;
 
+    @LoginIsRequiredIntercept(isRequired = false)
     @RequestMapping("search.html")
     public String toIndex(){
+
         return "index";
+
     }
 
+    @LoginIsRequiredIntercept(isRequired = false)
     @RequestMapping("list.html")
     public String showList(PmsSearchParam pmsSearchParam, ModelMap modelMap){
         //通过list进行查询
