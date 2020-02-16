@@ -15,4 +15,7 @@ public interface OmsCartService {
     List<OmsCartItem> selectOmsCartItemsByRedis(String userId);
 
     void updateIsCheckedStatus(String userId, String skuId, String isChecked);
+
+    void deleteIsCheckedCartsByUserId(String userId);
+
 }

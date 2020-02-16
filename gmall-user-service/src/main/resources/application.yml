@@ -6,6 +6,11 @@ spring:
     username: root
     password: 970415
     url: jdbc:mysql://localhost:3306/project_gmall?useUnicode=true&characterEncoding=UTF-8&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
+  redis:
+    port: 6379
+    host: 192.168.126.128
+    database: 0
+
 
   dubbo:
     application:
@@ -21,4 +26,6 @@ mybatis:
   mapper-locations: classpath:mapper/*Mapper.xml
   configuration:
     map-underscore-to-camel-case: true
+
+
 

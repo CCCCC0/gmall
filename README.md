@@ -20,6 +20,8 @@ gmall-order-web:8086
 
 gmall-passport:单点登录系统  8087
 
+gmall-pay:支付系统  8088
+
 在linux上开启了 tomcat8.5  
 在server.xml中最后一行加上了开启时并加载dubbo
 

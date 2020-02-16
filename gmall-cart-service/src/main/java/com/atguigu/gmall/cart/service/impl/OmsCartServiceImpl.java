@@ -103,6 +103,20 @@ public class OmsCartServiceImpl implements OmsCartService {
         }
     }
 
+    @Override
+    public void deleteIsCheckedCartsByUserId(String userId) {
+
+        //将DB中的数据删除 mysql - redis
+        Example example = new Example(OmsCartItem.class);
+        example.createCriteria().andEqualTo("memberId",userId).andEqualTo("isChecked","1");
+        omsCartMapper.deleteByExample(example);
+
+        //将redis中的数据进行删除
+        //从DB中查出请覆盖
+        toSynchronizedDataToRedis(userId);
+
+    }
+
     private void toSynchronizedDataToRedis(String userId) {
 
         OmsCartItem omsCartItem = new OmsCartItem();

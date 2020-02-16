@@ -16,7 +16,6 @@ import java.util.Map;
 @Component
 public class LoginInterceptor extends HandlerInterceptorAdapter {
 
-
     //进行拦截的方法 true表示放行
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -49,7 +48,7 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
             //两种校验方法  - 1 ：cas中心进行校验    - 2 : 去中心化 使用jwt工具进行校验
 
             //token存在  去cas进行校验
-            String url = "Http://passport.gmall.com/verify?token=" + token;
+            String url = "Http://passport.gmall.com:8087/verify?token=" + token;
             String result = HttpclientUtil.doGet(url);
             if (StringUtils.isNotBlank(result)) {
                 //校验初始成功
