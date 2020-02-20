@@ -1,5 +1,7 @@
 package com.atguigu.gmall.util;
 
+import org.springframework.stereotype.Component;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -10,6 +12,7 @@ import java.net.URLEncoder;
  * @param
  * @return
  */
+@Component
 public class CookieUtil {
     /***
      * 获得cookie中的值，默认为主ip：www.gmall.com

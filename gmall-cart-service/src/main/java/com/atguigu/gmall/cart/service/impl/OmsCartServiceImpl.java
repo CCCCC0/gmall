@@ -36,17 +36,16 @@ public class OmsCartServiceImpl implements OmsCartService {
         return cartItem;
     }
 
+
+
     @Override
     public void addOmsCart(OmsCartItem omsCartItem) {
 
+        String memberId = omsCartItem.getMemberId();
+
         omsCartMapper.insertSelective(omsCartItem);
 
-        //将数据同步到redis
-        Jedis jedis = redisUtil.getJedis();
-        //大Key为   user:id:cart
-        String key = "user:" + omsCartItem.getMemberId() + ":carts";
-        jedis.hset(key,omsCartItem.getProductSkuId(), JSON.toJSONString(omsCartItem));
-        jedis.close();
+        toSynchronizedDataToRedis(memberId);
     }
 
     @Override
@@ -112,29 +111,50 @@ public class OmsCartServiceImpl implements OmsCartService {
         omsCartMapper.deleteByExample(example);
 
         //将redis中的数据进行删除
-        //从DB中查出请覆盖
-        toSynchronizedDataToRedis(userId);
+       toSynchronizedDataToRedis(userId);
 
+    }
+
+    @Override
+    public void addOmsCarts(List<OmsCartItem> cartItems,String userId) {
+
+        for (OmsCartItem cartItem : cartItems) {
+            if (cartItem != null) {
+                cartItem.setMemberId(userId);
+                omsCartMapper.insertSelective(cartItem);
+            }
+        }
+
+        //同步到Catch
+        toSynchronizedDataToRedis(userId);
     }
 
     private void toSynchronizedDataToRedis(String userId) {
 
         OmsCartItem omsCartItem = new OmsCartItem();
         omsCartItem.setMemberId(userId);
-        List<OmsCartItem> select = omsCartMapper.select(omsCartItem);
-
+        List<OmsCartItem> omsCartItems = omsCartMapper.select(omsCartItem);
         Jedis jedis = redisUtil.getJedis();
-        String key = "user:" + userId + ":carts";
-        Map<String,String> map = new HashMap<>();
-        if(select != null && select.size() > 0){
-            for (OmsCartItem cartItem : select) {
-                if(cartItem != null){
-                    map.put(cartItem.getProductSkuId(),JSON.toJSONString(cartItem));
-                }
+        if(omsCartItems!=null&&omsCartItems.size()>0){
+
+            Map<String,String> map = new HashMap<>();
+
+            for (OmsCartItem cartItem : omsCartItems) {
+
+                String k = cartItem.getProductSkuId();
+
+                String v = JSON.toJSONString(cartItem);
+
+                map.put(k,v);
+
             }
-            jedis.hmset(key,map);
+            jedis.hmset("user:"+userId+":carts",map);
+        }else {
+            jedis.del("user:"+userId+":carts");
         }
         jedis.close();
+
     }
+
 
 }

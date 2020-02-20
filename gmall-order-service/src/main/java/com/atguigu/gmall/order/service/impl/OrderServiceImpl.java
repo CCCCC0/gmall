@@ -10,19 +10,23 @@ import com.atguigu.gmall.pojo.OmsOrder;
 import com.atguigu.gmall.pojo.OmsOrderItem;
 import com.atguigu.gmall.pojo.UmsMemberReceiveAddress;
 import com.atguigu.gmall.service.OrderService;
+import com.atguigu.gmall.util.ActiveMQUtil;
 import com.atguigu.gmall.util.RedisUtil;
+import org.apache.activemq.command.ActiveMQTextMessage;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import redis.clients.jedis.Jedis;
+import tk.mybatis.mapper.entity.Example;
 
 
+import javax.jms.*;
+import javax.jms.Queue;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
-public class OrderServiceImpl implements
-        OrderService {
+public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private UmsReceiveAddressMapper umsReceiveAddressMapper;
@@ -36,25 +40,23 @@ public class OrderServiceImpl implements
     @Autowired
     private OmsOrderMapper omsOrderMapper;
 
+    @Autowired
+    private ActiveMQUtil activeMQUtil;
+
     @Override
     public List<UmsMemberReceiveAddress> getUserReceiveAddress(String userId) {
-
         UmsMemberReceiveAddress umsMemberReceiveAddress = new UmsMemberReceiveAddress();
         umsMemberReceiveAddress.setMemberId(userId);
         List<UmsMemberReceiveAddress> addresses = umsReceiveAddressMapper.select(umsMemberReceiveAddress);
-
         return addresses;
     }
 
     @Override
     public List<OmsCartItem> getIsCheckedCarts(String userId) {
-
         Jedis jedis = redisUtil.getJedis();
-
         //从缓存中获取被选中的购物车数据 - 减轻DB压力
         String key = "user:" + userId + ":carts";
         List<String> hvals = jedis.hvals(key);    //在 redis中以 map中存储内容
-
         List<OmsCartItem> cartItemList = new ArrayList<>();
 
         if(hvals != null && hvals.size() > 0){
@@ -67,23 +69,19 @@ public class OrderServiceImpl implements
                 }
             }
         }
-
         return cartItemList;
     }
 
     @Override
     public UmsMemberReceiveAddress getUserReceiveAddressById(String addressId) {
-
         UmsMemberReceiveAddress umsMemberReceiveAddress = new UmsMemberReceiveAddress();
         umsMemberReceiveAddress.setId(addressId);
         UmsMemberReceiveAddress receiveAddress = umsReceiveAddressMapper.selectOne(umsMemberReceiveAddress);
-
         return receiveAddress;
     }
 
     @Override
     public void addOrder(OmsOrder omsOrder) {
-
         //将order 和 orderItem一起插入到DB中
         if(omsOrder != null){
             omsOrderMapper.insertSelective(omsOrder);
@@ -102,7 +100,6 @@ public class OrderServiceImpl implements
 
     @Override
     public String putCacheTradeCodeAndReturn(String userId) {
-
         String tradeCode = "psyduckGmall";
         long timeMillis = System.currentTimeMillis();
         Date date = new Date();
@@ -121,7 +118,6 @@ public class OrderServiceImpl implements
 
     @Override
     public boolean equalsTradeByCatch(String userId, String tradeCode) {
-
         Jedis jedis = RedisUtil.getJedis();
         String key = "user:" + userId + ":tradeCode";
         String tradeCodeByCatch = jedis.get(key);
@@ -150,7 +146,6 @@ public class OrderServiceImpl implements
 
     @Override
     public OmsOrder getOmsOrderByOrder_sn(String order_sn) {
-
         OmsOrder omsOrder = new OmsOrder();
         omsOrder.setOrderSn(order_sn);
         OmsOrder order = omsOrderMapper.selectOne(omsOrder);
@@ -164,5 +159,33 @@ public class OrderServiceImpl implements
         order.setOmsOrderItems(omsOrderItems);
 
         return order;
+    }
+
+    @Override
+    public void updateOmsOrder(OmsOrder omsOrder) {
+        Example example = new Example(OmsOrder.class);
+        example.createCriteria().andEqualTo("orderSn",omsOrder.getOrderSn());
+        omsOrderMapper.updateByExampleSelective(omsOrder,example);
+    }
+
+    //通知库存系统锁定库存
+    @Override
+    public void sendPaySuccessMessageToGwareSystem(OmsOrder order) {
+        ConnectionFactory connectionFactory = activeMQUtil.getConnectionFactory();
+        try {
+            Connection connection = connectionFactory.createConnection();
+            Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+
+            Queue queue = session.createQueue("ORDER_PAID_QUENE");
+            MessageProducer producer = session.createProducer(queue);
+            TextMessage message = new ActiveMQTextMessage();
+            message.setText(JSON.toJSONString(order));
+            producer.send(message);
+
+            session.commit();
+            connection.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -116,7 +116,6 @@ public class CartController {
   @LoginIsRequiredIntercept(isRequired = false)
   @RequestMapping("cartList")
     public String cartList(HttpServletRequest request,HttpServletResponse response, ModelMap modelMap){
-
         //页面显示   内容
         //两条分支   没登入  从cookie中获取内容
         //登入       从redis中获取内容

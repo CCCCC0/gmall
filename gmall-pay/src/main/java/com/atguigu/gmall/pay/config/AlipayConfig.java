@@ -25,9 +25,7 @@ public class AlipayConfig {
 
     public static String return_payment_url;     //支付宝同步回调地址
     public static String notify_payment_url;     //支付宝异步通知地址
-    public static String return_order_url;       //
     public static String alipay_public_key;      //公钥
-
 
     @Value("${alipay_public_key}")
     public void setAlipay_public_key(String alipay_public_key) {

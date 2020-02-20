@@ -3,22 +3,33 @@ package com.atguigu.gmall.passport.controller;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.fastjson.JSON;
 import com.atguigu.gmall.pojo.UmsMember;
+import com.atguigu.gmall.service.CasService;
 import com.atguigu.gmall.service.UmsMemberService;
+import com.atguigu.gmall.util.CookieUtil;
 import com.atguigu.gmall.util.HttpclientUtil;
 import com.atguigu.gmall.util.JwtUtil;
+import com.atguigu.gmall.util.WebConstant;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 @Controller
 public class CasController {
+
+    @Autowired
+    private CookieUtil cookieUtil;
+
+    @Autowired
+    private CasService casService;
 
     @Reference
     private UmsMemberService umsMemberService;
@@ -39,7 +50,7 @@ public class CasController {
 
     @RequestMapping("login")
     @ResponseBody
-    public String login(HttpServletRequest request,String ip,String password,String loginName){
+    public String login(HttpServletRequest request, HttpServletResponse response, String ip, String password, String loginName){
 
         //进行账号密码的验证
         UmsMember member = umsMemberService.getUmsMemberByUserIdAndLoginAccout(password, loginName);
@@ -60,6 +71,9 @@ public class CasController {
 
         //需要将token存入redis中
         umsMemberService.sychronizedTokenToRedis(token,member);
+
+        //发送消息队列到购物车系统 同步缓存中的内容到购物车
+        sendMessageToCartSystem(request,response,userId);
 
         return token;
     }
@@ -85,7 +99,7 @@ public class CasController {
     }
 
     @RequestMapping("weibo")
-    public String weibo(String code,HttpServletRequest request){
+    public String weibo(String code,HttpServletRequest request,HttpServletResponse response){
 
         //在此中获取code内容 - 通过此code调用开发者平台的内容 获取 accesstoken
         Map<String,String> map = new HashMap<>();
@@ -156,6 +170,10 @@ public class CasController {
 
                 //生成token 同步到redis中
                 umsMemberService.sychronizedTokenToRedis(token,member);
+
+                //发送消息队列到购物车系统 同步缓存中的内容到购物车
+                sendMessageToCartSystem(request,response,userId);
+
                 //成功返回到商品首页
                 return "redirect:http://search.gmall.com:8084/search.html?newToken="+token;
             }
@@ -163,6 +181,15 @@ public class CasController {
 
         //不成功跳到登入页面
         return "index";
+    }
+
+    private void sendMessageToCartSystem(HttpServletRequest request,HttpServletResponse response,String userId){
+        //发送消息队列到购物车系统 同步缓存中的内容到购物车
+        String cartKey = WebConstant.COOKIE_CART_NAME;
+        String cookieValue = cookieUtil.getCookieValue(request, response, cartKey, true);
+        //将cookie中的购物车内容进行清空
+        cookieUtil.setCookie(request,response, cartKey,"",1000*60*60*3,true);
+        casService.sendLoginSuccessMessageToCartSystem(cookieValue,userId);
     }
 
 }

@@ -22,6 +22,8 @@ gmall-passport:单点登录系统  8087
 
 gmall-pay:支付系统  8088
 
+gware-manage:9001 库存系统
+
 在linux上开启了 tomcat8.5  
 在server.xml中最后一行加上了开启时并加载dubbo
 

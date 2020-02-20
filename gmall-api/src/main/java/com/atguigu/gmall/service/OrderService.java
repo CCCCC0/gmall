@@ -24,4 +24,7 @@ public interface OrderService {
 
     OmsOrder getOmsOrderByOrder_sn(String order_sn);
 
+    void updateOmsOrder(OmsOrder omsOrderByOrder_sn);
+
+    void sendPaySuccessMessageToGwareSystem(OmsOrder order);
 }

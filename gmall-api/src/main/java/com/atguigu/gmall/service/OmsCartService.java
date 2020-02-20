@@ -18,4 +18,6 @@ public interface OmsCartService {
 
     void deleteIsCheckedCartsByUserId(String userId);
 
+    void addOmsCarts(List<OmsCartItem> cartItems,String userId);
+
 }

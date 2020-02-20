@@ -7,10 +7,12 @@ import com.alipay.api.AlipayClient;
 import com.alipay.api.request.AlipayTradePagePayRequest;
 import com.atguigu.gmall.annotations.LoginIsRequiredIntercept;
 import com.atguigu.gmall.pay.config.AlipayConfig;
+import com.atguigu.gmall.pay.util.HttpClient;
 import com.atguigu.gmall.pojo.OmsOrder;
 import com.atguigu.gmall.pojo.PaymentInfo;
 import com.atguigu.gmall.service.OrderService;
 import com.atguigu.gmall.service.PaymentInfoService;
+import com.github.wxpay.sdk.WXPayUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -35,6 +37,7 @@ public class PayController {
     @Reference
     private OrderService orderService;
 
+    @LoginIsRequiredIntercept(isRequired = true)
     @RequestMapping("goPay")
     public String goPay(BigDecimal totalMoney, String order_sn,String nickName, ModelMap modelMap){
 
@@ -87,11 +90,73 @@ public class PayController {
         paymentInfo.setPaymentStatus("未支付");
         paymentInfoService.addPaymentInfo(paymentInfo);
 
+        //请求支付宝表单后 - 需要向该支付系统发送一个延迟队列
+        //支付系统根据此消息队列 向支付宝系统发送请求 询问交易情况
+        paymentInfoService.sendMessageToPaySystemCheckPayResult(paymentInfo,1l);
+
         //返回form表单
         return form;
     }
 
+    //微信支付
+    @LoginIsRequiredIntercept(isRequired = true)
+    @RequestMapping("wx/submit")
+    @ResponseBody
+    public String wxPay(HttpServletRequest request,String order_sn){
 
+        //1:封装参数-封装成xml格式 2:请求微信端-获取支付url 3：利用url生成二维码进行支付
+        if(order_sn.length()>32){
+            //微信端要求长度为32位 - 本系统时间戳超过32位 需截取
+            order_sn = order_sn.substring(0,31);
+        }
+        //微信端支付 以分为单位
+        Map aNativeMap = getWxPayData(order_sn, "1");
+        String code_url = (String)aNativeMap.get("code_url");
+
+        //返回支付的url到前端 生成二维码
+        return code_url;
+    }
+
+    //访问微信端获取 参数Map
+    private Map getWxPayData(String  out_order_sn,String totalMoney){
+
+        Map<String,String> map = new HashMap<>();
+        map.put("appid","wxf913bfa3a2c7eeeb");
+        map.put("mch_id","1543338551");
+        map.put("nonce_str", WXPayUtil.generateNonceStr());
+        map.put("body","psyDuckGmall");
+        map.put("out_trade_no",out_order_sn);
+        map.put("spbill_create_ip","127.0.0.1");
+        map.put("total_fee",totalMoney);
+        map.put("notify_url", " http://2z72m78296.wicp.vip/wx/callback/notify");//回调地址(随便写)
+        map.put("trade_type", "NATIVE");//交易类型
+
+        try {
+            String mapXml = WXPayUtil.generateSignedXml(map, "atguigu3b0kn9g5v426MKfHQH7X8rKwb");
+            HttpClient client=new HttpClient("https://api.mch.weixin.qq.com/pay/unifiedorder");
+            client.setXmlParam(mapXml);
+            client.setHttps(true);
+            client.post();
+
+            //获取结果
+            String content = client.getContent();
+            Map<String, String> stringStringMap = WXPayUtil.xmlToMap(content);  //本来需要输出参数 - 看看里面具体有什么
+            Map<String, String> m=new HashMap<>();
+            map.put("code_url", stringStringMap.get("code_url"));//支付地址
+            map.put("total_fee", totalMoney);//总金额
+            map.put("out_trade_no",out_order_sn);//订单号
+
+            return m;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+
+    //支付后的同步回调方法
+    @LoginIsRequiredIntercept(isRequired = true)
     @RequestMapping("alipay/callback/return")
     public String alipaySyncCallBack(HttpServletRequest request){
 
@@ -120,18 +185,22 @@ public class PayController {
 
         //注意: 本身是需要用自身应用的公钥来解析签名获取私钥进行比对 - 本系统不做此操作
         //2：进行支付信息的更改
-        PaymentInfo paymentInfo = new PaymentInfo();
-        paymentInfo.setPaymentStatus("已支付");
-        paymentInfo.setOrderSn(out_trade_no);
-        paymentInfo.setCallbackTime(new Date());
-        paymentInfo.setAlipayTradeNo(trade_no);
-        paymentInfo.setCallbackContent(request.toString()); //所有的请求内容都存储在请求
-        paymentInfoService.updatePatmentInfo(paymentInfo);
+        //判断幂等性
+        //检查系统是否请求过支付宝已更改支付信息
+        boolean flag = paymentInfoService.searPaymentInfoIsUpdate(out_trade_no);
+        if(!flag) {
+            PaymentInfo paymentInfo = new PaymentInfo();
+            paymentInfo.setPaymentStatus("已支付");
+            paymentInfo.setOrderSn(out_trade_no);
+            paymentInfo.setCallbackTime(new Date());
+            paymentInfo.setAlipayTradeNo(trade_no);
+            paymentInfo.setCallbackContent(request.toString()); //所有的请求内容都存储在请求
+            paymentInfoService.updatePatmentInfo(paymentInfo);
 
-        //3:发送一个消息队列 - 提示order模块完成订单状态的更改
-        //等下做 - 把回调跑通
-
-        //4：跳回支付成功页面
+            //并且发送消息到订单系统进行订单内容的修改
+            paymentInfoService.sendPaySuccessMessage(paymentInfo);
+        }
+        //3：跳回支付成功页面
         return "finish";
     }
 }
