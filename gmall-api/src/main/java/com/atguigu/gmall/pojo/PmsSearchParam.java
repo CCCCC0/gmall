@@ -1,7 +1,6 @@
 package com.atguigu.gmall.pojo;
 
 import java.io.Serializable;
-import java.util.List;
 
 public class PmsSearchParam implements Serializable{
 
